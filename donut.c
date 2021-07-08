@@ -1,19 +1,22 @@
 #include <stdio.h>
 #include <string.h>
 
-#define X_RES	80
+#define X_RES	40
 #define Y_RES	22
 #define PIXELS	(X_RES * Y_RES)
 #define CENTER_X	(X_RES/2)
-#define CENTER_Y	(Y_RES/2 + 1)
-//R1=1 R2=2
+#define CENTER_Y	(Y_RES/2)
+#define R1 1 
+#define R2 3
 #define NEAR	4
 #define FAR	12
 #define TOP	(Y_RES/2)
 #define RIGHT	(X_RES/2)
-#define distance 8
+#define distance 10
 
 char brightness[] = ".,-~:;=!*#$@";
+const float K1 = CENTER_X *distance*6/(8*(R1+R2));
+const float K2 = CENTER_Y *distance*6/(8*(R1+R2));
 
 int k;
 double sin() ,cos();
@@ -31,15 +34,15 @@ int main(void){
 				      sinA=sin(A),
 				      sinj=sin(j),
 				      cosA=cos(A),
-				      cosj2=cosj+2,
+				      cosj2=R1 * cosj+ R2,
 				      cosi=cos(i),
 				      cosB=cos(B),
 				      sinB=sin(B),
-				      z = (sini*cosj2*cosA+sinj*sinA+ distance),
-				      mess=1/z,
+				      //z = (sini*cosj2*cosA+sinj*sinA+ distance),
+				      mess=1/(sini*cosj2*cosA+sinj*sinA+ distance),// 1/z
 				      t=sini*cosj2*sinA-sinj* cosA;
-				int x= CENTER_X + 40 * mess *(cosi * cosj2 * cosB - t * sinB),
-				    y= CENTER_Y + 25 *mess * (cosi * cosj2 * sinB + t * cosB),
+				int x= CENTER_X + K1 * mess *(cosi * cosj2 * cosB - t * sinB),
+				    y= CENTER_Y + K2 *mess * (cosi * cosj2 * sinB + t * cosB),
 				    o= x + X_RES*y,
 				    N=8*((sinj*cosA-sini*cosj*sinA)*cosB-sini*cosj*cosA-sinj*sinA-cosi *cosj*sinB);
 				if(Y_RES>y && y>0 && x>0 && X_RES>x && mess>z_buff[o]){
@@ -51,7 +54,6 @@ int main(void){
 		printf("\x1b[d");
 		for(k=0; (PIXELS+1) > k; k++)
 			putchar(k%X_RES?b[k]:10);
-		//printf("center (%d,%d) res(%d,%d)\n", CENTER_X, CENTER_Y, X_RES, Y_RES);
 		A+=0.04;
 		B+= 0.02;
 	}
